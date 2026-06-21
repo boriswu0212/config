@@ -175,6 +175,10 @@ else
   echo "  ~/.gitconfig already exists, skipping."
 fi
 ln -sf "$DOTFILES_DIR/claude/statusline-command.sh" ~/.claude/statusline-command.sh
+cp -n "$DOTFILES_DIR/claude/coralline.conf" ~/.claude/coralline.conf 2>/dev/null || true
+if [ -d ~/.claude/coralline ]; then
+  cp "$DOTFILES_DIR/claude/statusline.sh" ~/.claude/coralline/statusline.sh
+fi
 ln -sf "$DOTFILES_DIR/ssh/config" ~/.ssh/config
 
 # Automator Quick Actions (Finder right-click → Services)
