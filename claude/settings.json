@@ -70,18 +70,6 @@
     "defaultMode": "auto"
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/jenkins-curl-netrc.sh",
-            "statusMessage": "Injecting Jenkins curl flags"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "matcher": "",
@@ -115,28 +103,13 @@
     "atlassian@claude-plugins-official": true,
     "plugin-dev@claude-plugins-official": true,
     "hookify@claude-plugins-official": true,
-    "ultrathink@ekstend": true,
-    "barbarians-core@barbarian-ai": true,
-    "barbarians-toolbox@barbarian-ai": true,
-    "msgraph-tool@ai-skill-marketplace": true
+    "ultrathink@ekstend": true
   },
   "extraKnownMarketplaces": {
     "ekstend": {
       "source": {
         "source": "github",
         "repo": "husniadil/ekstend"
-      }
-    },
-    "barbarian-ai": {
-      "source": {
-        "source": "git",
-        "url": "git@github.com:trendai-v1es-platform/barbarian-ai.git"
-      }
-    },
-    "ai-skill-marketplace": {
-      "source": {
-        "source": "git",
-        "url": "git@github.com:trend-ai-taskforce/ai-skill-marketplace.git"
       }
     }
   },

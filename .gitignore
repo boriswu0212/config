@@ -2,6 +2,10 @@
 .secrets
 .claude/
 
+# Claude Code local settings (personal/team, not committed)
+claude/settings.local.json
+claude/hooks/
+
 # Sensitive files
 *.pem
 *.key
