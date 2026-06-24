@@ -115,6 +115,35 @@ fi
 step "Installing CLI tools..."
 brew install jq bind helm viddy bitwarden-cli uv ccat gh atuin defaultbrowser golangci-lint || echo "Warning: some CLI packages failed to install"
 
+# ── kuberlr (auto-versioning kubectl wrapper) ──
+step "Installing kuberlr..."
+if command -v kuberlr &>/dev/null; then
+  echo "  kuberlr already installed ($(kuberlr --version 2>&1 | head -1))."
+else
+  KUBERLR_VERSION="$(curl -fsSL https://api.github.com/repos/flavio/kuberlr/releases/latest | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/.*"v\(.*\)"/\1/')"
+  if [ -z "$KUBERLR_VERSION" ]; then
+    echo "  Warning: failed to fetch latest kuberlr version, skipping."
+  fi
+  ARCH="$(uname -m)"
+  case "$ARCH" in
+    arm64)  KUBERLR_ARCH="arm64" ;;
+    x86_64) KUBERLR_ARCH="amd64" ;;
+    *)      echo "  Warning: unsupported arch $ARCH, skipping kuberlr"; KUBERLR_ARCH="" ;;
+  esac
+  if [ -n "$KUBERLR_ARCH" ] && [ -n "$KUBERLR_VERSION" ]; then
+    KUBERLR_URL="https://github.com/flavio/kuberlr/releases/download/v${KUBERLR_VERSION}/kuberlr_${KUBERLR_VERSION}_darwin_${KUBERLR_ARCH}.tar.gz"
+    TMP_KUBERLR=$(mktemp -d)
+    if curl -fsSL "$KUBERLR_URL" | tar xz -C "$TMP_KUBERLR"; then
+      sudo cp "$TMP_KUBERLR/kuberlr" /usr/local/bin/kuberlr
+      sudo ln -sf /usr/local/bin/kuberlr /usr/local/bin/kubectl
+      echo "  kuberlr installed, kubectl symlinked."
+    else
+      echo "  Warning: kuberlr download failed."
+    fi
+    rm -rf "$TMP_KUBERLR"
+  fi
+fi
+
 # ── 5. Container & Version manager ──
 step "Installing container & version manager..."
 brew install colima mise terraform-docs || echo "Warning: some packages failed to install"
@@ -179,6 +208,11 @@ cp -n "$DOTFILES_DIR/claude/coralline.conf" ~/.claude/coralline.conf 2>/dev/null
 if [ -d ~/.claude/coralline ]; then
   cp "$DOTFILES_DIR/claude/statusline.sh" ~/.claude/coralline/statusline.sh
 fi
+# Claude Code hooks — symlink every script in claude/hooks/
+mkdir -p ~/.claude/hooks
+for hook in "$DOTFILES_DIR"/claude/hooks/*.sh; do
+  [ -e "$hook" ] && ln -sf "$hook" ~/.claude/hooks/"$(basename "$hook")"
+done
 ln -sf "$DOTFILES_DIR/ssh/config" ~/.ssh/config
 
 # Automator Quick Actions (Finder right-click → Services)
@@ -374,6 +408,7 @@ verify "terraform (mise)"   bash -c 'eval "$(mise activate bash)" && command -v 
 verify "atuin"              command -v atuin
 verify "Bitwarden CLI"      command -v bw
 verify "helm"               command -v helm
+verify "kuberlr"            command -v kuberlr
 verify "viddy"              command -v viddy
 verify "ccat"               command -v ccat
 verify "chroma"             command -v chroma
