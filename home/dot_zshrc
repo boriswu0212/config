@@ -67,12 +67,21 @@ command -v atuin &>/dev/null && eval "$(atuin init zsh)"
 
 # Aliases
 alias c='ccat'
-alias cvault='cd "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge base" && claude'
+claudev() (
+  cd "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge base" &&
+  claude "$@"
+)
 claude-ds() {
   ANTHROPIC_BASE_URL="$DEEPSEEK_BASE_URL" \
   ANTHROPIC_API_KEY="$DEEPSEEK_API_KEY" \
   claude --settings ~/.claude/settings-ds.json "$@"
 }
+claudev-ds() (
+  cd "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Knowledge base" &&
+  ANTHROPIC_BASE_URL="$DEEPSEEK_BASE_URL" \
+  ANTHROPIC_API_KEY="$DEEPSEEK_API_KEY" \
+  claude --settings ~/.claude/settings-ds.json "$@"
+)
 cza() {
   source "$(chezmoi source-path)/../scripts/bw-auth.sh" || return 1
   if [ -z "$BW_SESSION" ]; then
