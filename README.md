@@ -41,21 +41,28 @@ cd config
 
 安裝 Homebrew、字型、terminal、shell tools、CLI tools、apps、Oh My Zsh，並部署所有 config。
 
+> **本地開發**：如果已經手動 clone repo、想用本地檔案而非 GitHub remote：
+> ```bash
+> git clone https://github.com/dddong3/config.git
+> cd config
+> chezmoi init --source .    # .chezmoiroot 指向 home/
+> ```
+> 然後照 Stage 2/3 流程繼續（`bw sync && chezmoi apply`）。
+
 ### Stage 2 — Secrets（需要 Bitwarden master password）
 
 重開 terminal 後：
 
 1. 授予 Mos 和 Ghostty Accessibility 權限（setup.sh 會自動開啟設定視窗）
-2. `cza`（alias：`export BW_SESSION=$(bw unlock --raw) && chezmoi apply`）
+2. `cza` — 自動 unlock Bitwarden、sync vault、並 `chezmoi apply`
 
-chezmoi 會從 Bitwarden 拉取 `dotfiles-secrets-{profile}` 並部署到 `~/.secrets`。
+chezmoi 會從 Bitwarden 拉取 `dotfiles-secrets-{profile}`（→ `~/.secrets`）和 `git-identity`（→ `~/.gitconfig`）。
 
 ### Stage 3 — 服務設定（需要 Stage 2 的 secrets/key）
 
 3. 上傳 SSH key 到 GitHub（如果是新 key）：`gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"`
 4. `gh auth login` 登入 GitHub CLI（選 SSH protocol）
 5. `atuin login`，encryption key 用 `~/.secrets` 裡的 `ATUIN_KEY`
-6. 編輯 `~/.gitconfig`，填入 `user.name` 和 `user.email`
 
 ### SSH Key
 
