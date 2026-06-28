@@ -1,6 +1,7 @@
 .DS_Store
 .secrets
-.claude/
+.claude/*
+!.claude/rules/
 
 # Sensitive files
 *.pem
