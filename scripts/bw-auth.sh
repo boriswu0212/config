@@ -34,4 +34,5 @@ if [ -z "$BW_SESSION" ]; then
   echo "Error: Bitwarden authentication failed (empty session)."
   return 1 2>/dev/null || exit 1
 fi
+bw sync >/dev/null 2>&1 || echo "Warning: bw sync failed, vault may be stale"
 # BW_SESSION is now set in the caller's shell scope
