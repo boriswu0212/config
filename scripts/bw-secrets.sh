@@ -47,13 +47,12 @@ NOTES=$(cat "$tmp")
 
 if [ -n "$EXISTING" ]; then
   ITEM_ID=$(echo "$EXISTING" | jq -r '.id')
-  ENCODED=$(echo "$EXISTING" | jq --arg notes "$NOTES" '.notes = $notes' | bw encode)
+  ENCODED=$(NOTES="$NOTES" jq '.notes = env.NOTES' <<< "$EXISTING" | bw encode)
   bw edit item "$ITEM_ID" "$ENCODED" > /dev/null
 else
-  bw get template item | jq \
+  bw get template item | NOTES="$NOTES" jq \
     --arg name "$ITEM_NAME" \
-    --arg notes "$NOTES" \
-    '.name = $name | .type = 2 | .secureNote = {"type": 0} | .notes = $notes' \
+    '.name = $name | .type = 2 | .secureNote = {"type": 0} | .notes = env.NOTES' \
     | bw encode | bw create item > /dev/null
 fi
 

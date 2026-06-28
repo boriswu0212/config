@@ -13,7 +13,7 @@ if [ -z "$BW_SERVER_URL" ]; then
   read -rp "Vaultwarden URL: " BW_SERVER_URL
 fi
 bw logout 2>/dev/null || true
-bw config server "$BW_SERVER_URL"
+bw config server "$BW_SERVER_URL" || { echo "Error: bw config server failed."; return 1 2>/dev/null || exit 1; }
 
 if bw login --check &>/dev/null; then
   BW_SESSION=$(bw unlock --raw) || { echo "Error: bw unlock failed."; return 1 2>/dev/null || exit 1; }

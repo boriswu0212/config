@@ -41,6 +41,7 @@ done
 for entry in "${SSH_KEYS[@]}"; do
   KEY_FILE="${entry%%:*}"
   KEY_COMMENT="${entry##*:}"
+  # -N puts passphrase in argv (ps-visible); ssh-keygen has no stdin alternative
   ssh-keygen -t ed25519 -C "$KEY_COMMENT" -N "$SSH_PASSPHRASE" -f "$tmp_dir/$KEY_FILE"
 done
 unset SSH_PASSPHRASE SSH_PASSPHRASE_CONFIRM
@@ -77,13 +78,12 @@ BW_NOTES=$(jq -rn \
 if bw get item "$ITEM_NAME" &>/dev/null; then
   ITEM=$(bw get item "$ITEM_NAME")
   ITEM_ID=$(echo "$ITEM" | jq -r '.id')
-  ENCODED=$(echo "$ITEM" | jq --arg notes "$BW_NOTES" '.notes = $notes' | bw encode)
+  ENCODED=$(NOTES="$BW_NOTES" jq '.notes = env.NOTES' <<< "$ITEM" | bw encode)
   bw edit item "$ITEM_ID" "$ENCODED" > /dev/null
 else
-  bw get template item | jq \
+  bw get template item | NOTES="$BW_NOTES" jq \
     --arg name "$ITEM_NAME" \
-    --arg notes "$BW_NOTES" \
-    '.name = $name | .type = 2 | .secureNote = {"type": 0} | .notes = $notes' \
+    '.name = $name | .type = 2 | .secureNote = {"type": 0} | .notes = env.NOTES' \
     | bw encode | bw create item > /dev/null
 fi
 echo "  Bitwarden updated ($ITEM_NAME)."

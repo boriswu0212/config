@@ -26,7 +26,7 @@ fi
 
 # Skip compaudit insecure-dir warnings for brew-managed dirs
 export ZSH_DISABLE_COMPFIX=true
-[ -d "$ZSH" ] && source $ZSH/oh-my-zsh.sh
+[ -d "$ZSH" ] && source "$ZSH/oh-my-zsh.sh"
 
 # mise (version manager)
 command -v mise &>/dev/null && eval "$(mise activate zsh)"
