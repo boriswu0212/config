@@ -13,10 +13,10 @@ macOS 開發環境設定檔備份與新環境建置指南。
 | Starship | `dot_config/starship.toml` | `~/.config/starship.toml` |
 | Ghostty | `Library/Application Support/com.mitchellh.ghostty/config` | 同路徑 |
 | VS Code | `Library/Application Support/Code/User/settings.json` | 同路徑 |
-| RIME 注音 | `Library/Rime/bopomofo.custom.yaml` | `~/Library/Rime/` |
+| RIME 注音 | `Library/Rime/bopomofo.custom.yaml`, `squirrel.custom.yaml` | `~/Library/Rime/` |
 | Git | `dot_gitconfig.tmpl`, `dot_gitconfig-work.tmpl` | `~/.gitconfig`, `~/.gitconfig-work` |
-| SSH | `private_dot_ssh/config`, `config.local.tmpl` | `~/.ssh/config` |
-| Claude Code | `private_dot_claude/settings.json`, `statusline-command.sh` | `~/.claude/` |
+| SSH | `private_dot_ssh/config.tmpl`, `config.local.tmpl` | `~/.ssh/config` |
+| Claude Code | `private_dot_claude/settings.json`, `settings-ds.json.tmpl`, `coralline.conf`, `statusline-command.sh` | `~/.claude/` |
 | Secrets | `private_dot_secrets.tmpl` | `~/.secrets`（從 Bitwarden 拉取） |
 
 其他目錄：
@@ -83,6 +83,7 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 | Note 名稱 | 內容 |
 |-----------|------|
 | `dotfiles-secrets-{home,work}` | 環境變數（API token、BW_SERVER_URL 等） |
+| `git-identity` | Git user.name / user.email（`dot_gitconfig.tmpl` 使用） |
 
 ### Scripts 一覽
 
@@ -95,8 +96,8 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 
 新增工具時需同步更新：
 
-1. `setup.sh` — brew install 或 mise use 行
-2. `setup.sh` — verify 區塊加入驗證
+1. `Brewfile` — brew install 行
+2. `home/run_once_before_01-setup.sh.tmpl` — verify 區塊加入驗證
 3. `README.md` — 結構表或說明（如有新設定檔）
 4. `test/e2e.sh` — EXPECTED_FAILS（如該工具 Stage 1 不可用）
 
@@ -104,7 +105,7 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 
 5. 用 `./scripts/bw-secrets.sh` 編輯 Bitwarden `dotfiles-secrets-{profile}` note
 
-注意：`setup.sh` 會安裝 pre-commit hook 防止意外 commit secrets，僅在執行 `setup.sh` 後生效。
+注意：`run_once_before_01-setup.sh.tmpl` 會安裝 pre-commit hook 防止意外 commit secrets，僅在首次 `chezmoi apply` 後生效。
 
 ## E2E 測試
 

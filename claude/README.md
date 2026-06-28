@@ -2,14 +2,15 @@
 
 ## 認證方式
 
-Claude Code 支援兩種認證，**不可混用**：
+目前使用 Claude Max 訂閱的 OAuth 登入（`claude login`），不需要設定任何 token 環境變數。
+
+Claude Code 也支援其他認證方式：
 
 | 認證方式 | Header | 設定方式 | 適用場景 |
 |----------|--------|----------|----------|
+| OAuth 登入 | 自動處理 | `claude login` | Claude Max / Team / Enterprise |
 | `ANTHROPIC_API_KEY` | `X-Api-Key: sk-...` | env 或 `apiKeyHelper` | 直接用 Anthropic API |
 | `ANTHROPIC_AUTH_TOKEN` | `Authorization: Bearer eyJ...` | **只能用 env** | 公司 API proxy / OAuth |
-
-目前使用 `ANTHROPIC_AUTH_TOKEN`（Bearer token），所以 **`apiKeyHelper` 不適用**。
 
 ## settings.json 結構
 
@@ -32,8 +33,7 @@ Claude Code 支援兩種認證，**不可混用**：
 
 | 變數 | 說明 |
 |------|------|
-| `ANTHROPIC_BASE_URL` | API endpoint |
-| `ANTHROPIC_AUTH_TOKEN` | Bearer token |
+| `ANTHROPIC_BASE_URL` | API endpoint（搭配 API key 或第三方 proxy 時使用） |
 | `ANTHROPIC_MODEL` | 主模型 |
 | `ANTHROPIC_SMALL_FAST_MODEL` | 輕量模型（subagent 用） |
 | `CLAUDE_CODE_EFFORT_LEVEL` | `low` / `medium` / `max` |
@@ -78,22 +78,17 @@ deny 優先於 allow。`Bash(ls *)` 的空格是 word boundary，不會 match `l
 
 ## 踩坑記錄
 
-### 1. apiKeyHelper 不支援 AUTH_TOKEN
-
-`apiKeyHelper` 只能提供 `X-Api-Key` header 的值，不能提供 Bearer token。
-如果你用的是 `ANTHROPIC_AUTH_TOKEN`，必須放在 `settings.json` 的 `env` 裡。
-
-### 2. settings.json 用 cp 不用 symlink
+### 1. settings.json 用 cp 不用 symlink
 
 `settings.json` 包含實際 token 值（由 chezmoi template 展開），
 所以用 `cp` 而不是 `ln -sf`，避免 token 寫回 repo。
 
-### 3. statusLine ANSI 色碼
+### 2. statusLine ANSI 色碼
 
 status line 腳本用 `echo -e` 輸出 ANSI 色碼。`printf` 會把 `%` 當格式符導致錯誤。
 256-color ANSI（`\033[38;5;NNm`）在 Claude Code 中可能不渲染。
 
-### 4. settings.json 分層
+### 3. settings.json 分層
 
 Claude Code 的 settings 有三層，由上到下合併：
 
