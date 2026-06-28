@@ -24,7 +24,7 @@ macOS 開發環境設定檔備份與新環境建置指南。
 | 資料夾 | 用途 |
 |--------|------|
 | `macos/` | Automator Quick Actions（`OpenInVSCode.workflow`） |
-| `scripts/` | 自動化腳本（`bw-auth.sh`, `bw-setup.sh`, `rotate-*.sh`） |
+| `scripts/` | 自動化腳本（`bw-auth.sh`, `bw-secrets.sh`, `rotate-*.sh`） |
 | `test/` | E2E 測試（Tart VM） |
 
 ## 新環境建置
@@ -46,71 +46,57 @@ cd config
 重開 terminal 後：
 
 1. 授予 Mos 和 Ghostty Accessibility 權限（setup.sh 會自動開啟設定視窗）
-2. `cd ~/Code/Github/config && ./scripts/bw-setup.sh`
+2. `cza`（alias：`export BW_SESSION=$(bw unlock --raw) && chezmoi apply`）
+
+chezmoi 會從 Bitwarden 拉取 `dotfiles-secrets-{profile}` 並部署到 `~/.secrets`。
 
 ### Stage 3 — 服務設定（需要 Stage 2 的 secrets/key）
 
 3. 上傳 SSH key 到 GitHub（如果是新 key）：`gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"`
 4. `gh auth login` 登入 GitHub CLI（選 SSH protocol）
-5. `atuin login`，encryption key 用：`grep ATUIN_KEY ~/.secrets | cut -d"'" -f2`
+5. `atuin login`，encryption key 用 `~/.secrets` 裡的 `ATUIN_KEY`
 6. 編輯 `~/.gitconfig`，填入 `user.name` 和 `user.email`
 
 ### SSH Key
 
-`scripts/bw-setup.sh`（Stage 2）會處理 SSH key：
-1. 從 Bitwarden Secure Note（`ssh-keys-{hostname}`）還原已有的 key pair
-2. 加入 macOS Keychain
-
-若 Bitwarden 中沒有 key，需手動生成或用 `scripts/rotate-ssh-keys.sh`（會自動生成、上傳到 Bitwarden 和 GitHub）。
-
-Key 用途：
+SSH key 在 Stage 1 由 `chezmoi apply` 自動生成（`run_once_before_02-ssh-keygen.sh.tmpl`），每台機器獨立，不備份到 Bitwarden。
 
 | Key | 用途 |
 |-----|------|
 | `~/.ssh/personal_ed25519` | GitHub, GitLab 等 code 平台（personal，預設） |
 | `~/.ssh/work_ed25519` | 工作身份 GitHub（僅工作機需要） |
 
-#### 手動重新生成並同步
+需要 rotate 時：
 
 ```bash
 ./scripts/rotate-ssh-keys.sh
 ```
 
-或手動上傳到 GitHub：
-
-```bash
-gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
-```
-
 ### Secrets 管理
 
-`scripts/bw-setup.sh`（Stage 2）首次從 Bitwarden 拉取 secrets 並存入 `~/.secrets`。
-
+`~/.secrets` 由 chezmoi template 管理（`private_dot_secrets.tmpl`），`cza` 時自動從 Bitwarden 拉取。手動編輯用 `./scripts/bw-secrets.sh`。
 
 ### Bitwarden Secure Notes
 
 | Note 名稱 | 內容 |
 |-----------|------|
 | `dotfiles-secrets-{home,work}` | 環境變數（API token、BW_SERVER_URL 等） |
-| `ssh-keys-{hostname}` | SSH private/public key pairs |
 
 ### Secret Rotation
-
-每個 secret 有對應的 rotation 腳本：
 
 | Secret | 腳本 |
 |--------|------|
 | `ATUIN_KEY` | `./scripts/rotate-atuin-key.sh` |
 | SSH keys | `./scripts/rotate-ssh-keys.sh` |
 
-腳本會自動更新本機 + Bitwarden。
+腳本會自動更新本機（atuin key 同步更新 Bitwarden）。
 
 ### Scripts 一覽
 
 | 腳本 | 用途 | 何時用 |
 |------|------|--------|
 | `bw-auth.sh` | 共用 Bitwarden 認證 helper（被其他腳本 source）| 不直接執行 |
-| `bw-setup.sh` | 首次還原 secrets + SSH key + Claude settings | 新電腦 Stage 2 |
+| `bw-secrets.sh` | 編輯 Bitwarden 中的 secrets | 新增或修改環境變數 |
 | `rotate-ssh-keys.sh` | Rotate SSH key pair | key 洩漏或定期更換 |
 | `rotate-atuin-key.sh` | Rotate Atuin encryption key | 重新註冊 atuin |
 
@@ -162,5 +148,4 @@ brew install sshpass
 
 - 首次執行需要下載 VM image（~20GB），之後會使用 cache
 - 整體耗時約 10-15 分鐘（主要是 brew install）
-- E2E 只測試 Stage 1（不測試 bw-setup.sh、atuin login、gh auth login）
-- SSH key verify 預期失敗（需要 Stage 2 才還原）
+- E2E 只測試 Stage 1（不測試 Bitwarden secrets、atuin login、gh auth login）

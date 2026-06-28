@@ -66,38 +66,9 @@ for entry in "${SSH_KEYS[@]}"; do
   ssh-add --apple-use-keychain "$HOME/.ssh/${entry%%:*}"
 done
 
-# Upload to Bitwarden
-echo ""
-echo "[3] Updating Bitwarden backup..."
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-source "$SCRIPT_DIR/bw-auth.sh"
-
-ITEM_NAME="ssh-keys-${HOSTNAME}"
-BW_NOTES=$(jq -rn \
-  --arg host "$HOSTNAME" \
-  --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --rawfile personal_key "$HOME/.ssh/personal_ed25519" \
-  --rawfile personal_pub "$HOME/.ssh/personal_ed25519.pub" \
-  --rawfile work_key "$HOME/.ssh/work_ed25519" \
-  --rawfile work_pub "$HOME/.ssh/work_ed25519.pub" \
-  '"# \($host) — \($date)\n\n--- personal_ed25519 ---\n" + $personal_key + "\n--- personal_ed25519.pub ---\n" + $personal_pub + "\n--- work_ed25519 ---\n" + $work_key + "\n--- work_ed25519.pub ---\n" + $work_pub')
-
-if bw get item "$ITEM_NAME" &>/dev/null; then
-  ITEM=$(bw get item "$ITEM_NAME")
-  ITEM_ID=$(echo "$ITEM" | jq -r '.id')
-  ENCODED=$(NOTES="$BW_NOTES" jq '.notes = env.NOTES' <<< "$ITEM" | bw encode)
-  bw edit item "$ITEM_ID" "$ENCODED" > /dev/null
-else
-  bw get template item | NOTES="$BW_NOTES" jq \
-    --arg name "$ITEM_NAME" \
-    '.name = $name | .type = 2 | .secureNote = {"type": 0} | .notes = env.NOTES' \
-    | bw encode | bw create item > /dev/null
-fi
-echo "  Bitwarden updated ($ITEM_NAME)."
-
 # Upload to GitHub
 echo ""
-echo "[4] Re-upload SSH keys to GitHub hosts."
+echo "[3] Re-upload SSH keys to GitHub hosts."
 echo "  Rotated keys:"
 for entry in "${SSH_KEYS[@]}"; do
   KEY_FILE="${entry%%:*}"
@@ -111,10 +82,8 @@ echo "    GH_HOST=github.example.com gh ssh-key add ~/.ssh/work_ed25519.pub --ti
 
 # Verify
 echo ""
-echo "[5] Verifying..."
+echo "[4] Verifying..."
 ssh -T git@github.com 2>&1 | grep -q "successfully" && echo "  GitHub SSH: OK" || echo "  GitHub SSH: FAIL"
-
-unset BW_SESSION
 
 echo ""
 echo "Done. Remember to:"

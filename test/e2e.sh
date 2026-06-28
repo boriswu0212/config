@@ -88,7 +88,7 @@ grep -E '(✓|✗|Result:)' "$LOG" || true
 # Expected failures after Stage 1 (no secrets/SSH key yet)
 EXPECTED_FAILS=("SSH key")
 echo ""
-echo "Note: '${EXPECTED_FAILS[*]}' is expected to fail (requires Stage 2: bw-setup.sh)"
+echo "Note: '${EXPECTED_FAILS[*]}' is expected to fail (requires Stage 2: cza)"
 
 echo ""
 TOTAL_FAIL=$(grep -c '✗' "$LOG" || true)

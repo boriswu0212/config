@@ -85,7 +85,7 @@ deny 優先於 allow。`Bash(ls *)` 的空格是 word boundary，不會 match `l
 
 ### 2. settings.json 用 cp 不用 symlink
 
-`settings.json` 包含實際 token 值（由 `bw-setup.sh` sed 替換 placeholder），
+`settings.json` 包含實際 token 值（由 chezmoi template 展開），
 所以用 `cp` 而不是 `ln -sf`，避免 token 寫回 repo。
 
 ### 3. statusLine ANSI 色碼
