@@ -80,7 +80,9 @@ claude-ds() {
   ANTHROPIC_API_KEY="$DEEPSEEK_API_KEY" \
   claude --settings ~/.claude/settings-ds.json "$@"
 }
-alias cza='export BW_SESSION=$(bw unlock --raw) && chezmoi apply'
+cza() {
+  source "$(chezmoi source-path)/../scripts/bw-auth.sh" && chezmoi apply
+}
 
 # Prompt (must be last)
 command -v starship &>/dev/null && eval "$(starship init zsh)"
