@@ -89,7 +89,8 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 |-----------|------|--------|
 | `dotfiles-secrets-{home,work}` | 環境變數（API token、BW_SERVER_URL 等） | `private_dot_secrets.tmpl` |
 | `git-identity` | Git user.name / user.email | `dot_gitconfig.tmpl` |
-| `claude-settings-local-work` | Claude Code work profile 的 `settings.local.json`（plugins、hooks） | `settings.local.json.tmpl` |
+| `claude-settings-home` | Claude Code home profile 的 `settings.json` | `settings.json.tmpl` |
+| `claude-settings-work` | Claude Code work profile 的 `settings.json`（含 plugins、hooks、effort） | `settings.json.tmpl` |
 | `claude-hook-jenkins-work` | Claude Code Jenkins curl hook script | `executable_jenkins-curl-netrc.sh.tmpl` |
 
 管理 notes：
@@ -99,7 +100,7 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 ./scripts/bw-secrets.sh home    # 或 work
 
 # 新增或編輯任意 Secure Note（互動模式，用 $EDITOR 開啟）
-./scripts/bw-note.sh claude-settings-local-work
+./scripts/bw-note.sh claude-settings-work
 
 # 從檔案匯入建立/更新 note
 ./scripts/bw-note.sh claude-hook-jenkins-work claude/hooks/jenkins-curl-netrc.sh

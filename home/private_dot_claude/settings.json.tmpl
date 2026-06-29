@@ -1,0 +1,5 @@
+{{- if eq .profile "home" -}}
+{{ (bitwarden "item" "claude-settings-home").notes }}
+{{- else -}}
+{{ (bitwarden "item" "claude-settings-work").notes }}
+{{- end -}}

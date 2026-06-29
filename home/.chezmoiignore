@@ -4,6 +4,5 @@
 {{ end }}
 
 {{ if eq .profile "home" }}
-.claude/settings.local.json
 .claude/hooks
 {{ end }}
