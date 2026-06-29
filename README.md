@@ -16,7 +16,7 @@ macOS 開發環境設定檔備份與新環境建置指南。
 | RIME 注音 | `Library/Rime/bopomofo.custom.yaml`, `squirrel.custom.yaml` | `~/Library/Rime/` |
 | Git | `dot_gitconfig.tmpl`, `dot_gitconfig-work.tmpl` | `~/.gitconfig`, `~/.gitconfig-work` |
 | SSH | `private_dot_ssh/config.tmpl`, `config.local.tmpl` | `~/.ssh/config` |
-| Claude Code | `private_dot_claude/settings.json`, `settings-ds.json.tmpl`, `coralline.conf`, `statusline-command.sh` | `~/.claude/` |
+| Claude Code | `private_dot_claude/settings.json`, `settings.local.json.tmpl`, `settings-ds.json.tmpl`, `coralline.conf`, `statusline-command.sh` | `~/.claude/` |
 | Secrets | `private_dot_secrets.tmpl` | `~/.secrets`（從 Bitwarden 拉取） |
 
 其他目錄：
@@ -29,7 +29,7 @@ macOS 開發環境設定檔備份與新環境建置指南。
 
 ## 新環境建置
 
-### Stage 1 — 基礎安裝（不需任何認證）
+### Stage 1 — 基礎安裝 + Secrets
 
 新 Mac 第一次跑 `git` 會提示安裝 Xcode Command Line Tools，同意安裝後再繼續。
 
@@ -40,29 +40,27 @@ cd config
 ```
 
 安裝 Homebrew、字型、terminal、shell tools、CLI tools、apps、Oh My Zsh，並部署所有 config。
+過程中會提示輸入 Vaultwarden URL 和 Bitwarden master password，用於拉取 secrets 和 git identity。
+
+chezmoi 會從 Bitwarden 拉取 `dotfiles-secrets-{profile}`（→ `~/.secrets`）和 `git-identity`（→ `~/.gitconfig`）。
 
 > **本地開發**：如果已經手動 clone repo、想用本地檔案而非 GitHub remote：
 > ```bash
 > git clone https://github.com/dddong3/config.git
 > cd config
 > chezmoi init --source .    # .chezmoiroot 指向 home/
+> source scripts/bw-auth.sh && export BW_SESSION
+> chezmoi apply
 > ```
-> 然後照 Stage 2/3 流程繼續（`bw sync && chezmoi apply`）。
 
-### Stage 2 — Secrets（需要 Bitwarden master password）
+### Stage 2 — 服務設定（需要 Stage 1 的 secrets/key）
 
 重開 terminal 後：
 
 1. 授予 Mos 和 Ghostty Accessibility 權限（setup.sh 會自動開啟設定視窗）
-2. `cza` — 自動 unlock Bitwarden、sync vault、並 `chezmoi apply`
-
-chezmoi 會從 Bitwarden 拉取 `dotfiles-secrets-{profile}`（→ `~/.secrets`）和 `git-identity`（→ `~/.gitconfig`）。
-
-### Stage 3 — 服務設定（需要 Stage 2 的 secrets/key）
-
-3. 上傳 SSH key 到 GitHub（如果是新 key）：`gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"`
-4. `gh auth login` 登入 GitHub CLI（選 SSH protocol）
-5. `atuin login`（encryption key 在 `~/.secrets`：`ATUIN_KEY`）
+2. 上傳 SSH key 到 GitHub（如果是新 key）：`gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"`
+3. `gh auth login` 登入 GitHub CLI（選 SSH protocol）
+4. `atuin login`（encryption key 在 `~/.secrets`：`ATUIN_KEY`）
 
 ### SSH Key
 
@@ -91,6 +89,7 @@ gh ssh-key add ~/.ssh/personal_ed25519.pub --title "$(hostname)-personal"
 |-----------|------|
 | `dotfiles-secrets-{home,work}` | 環境變數（API token、BW_SERVER_URL 等） |
 | `git-identity` | Git user.name / user.email（`dot_gitconfig.tmpl` 使用） |
+| `claude-settings-local-work` | Claude Code work profile 的 `settings.local.json`（plugins、hooks） |
 
 ### Scripts 一覽
 
@@ -138,7 +137,7 @@ brew install sshpass
 3. 等待 SSH 連線
 4. 設定 passwordless sudo
 5. 在 VM 中 `git clone` repo（public repo，不需認證）
-6. 執行 `setup.sh`（SSH key 使用空 passphrase 以避免互動）
+6. 執行 `SKIP_BW_AUTH=1 ./setup.sh`（跳過 Bitwarden 登入，SSH key 使用空 passphrase 以避免互動）
 7. 驗證所有安裝項目和 config symlink
 8. 輸出結果並清理 VM
 
@@ -146,4 +145,4 @@ brew install sshpass
 
 - 首次執行需要下載 VM image（~20GB），之後會使用 cache
 - 整體耗時約 10-15 分鐘（主要是 brew install）
-- E2E 只測試 Stage 1（不測試 Bitwarden secrets、atuin login、gh auth login）
+- E2E 以 `SKIP_BW_AUTH=1` 執行，跳過 Bitwarden 登入（不測試 secrets、gitconfig、atuin login、gh auth login）

@@ -2,3 +2,7 @@
 .ssh/config.local
 .claude/settings-ds.json
 {{ end }}
+
+{{ if eq .profile "home" }}
+.claude/settings.local.json
+{{ end }}
