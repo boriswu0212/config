@@ -16,7 +16,7 @@ fi
 
 # ── chezmoi (clone only — apply after bw auth) ──
 brew install chezmoi
-chezmoi init dddong3/config
+chezmoi init boriswu0212/config
 
 # ── Bitwarden auth (chezmoi templates need BW_SESSION to resolve secrets) ──
 DOTFILES_DIR="$(chezmoi source-path | sed 's|/home$||')"

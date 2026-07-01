@@ -8,7 +8,7 @@ VM_NAME="dotfiles-test"
 VM_USER="admin"
 VM_PASS="admin"
 VM_IMAGE="ghcr.io/cirruslabs/macos-sequoia-vanilla:latest"
-REPO_URL="https://github.com/dddong3/config.git"
+REPO_URL="https://github.com/boriswu0212/config.git"
 LOG="/tmp/dotfiles-e2e.log"
 
 echo "=== Dotfiles E2E Test (Stage 1) ==="
