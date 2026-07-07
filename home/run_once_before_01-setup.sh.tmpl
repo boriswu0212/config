@@ -244,6 +244,8 @@ verify "Bitwarden (GUI)"    test -d /Applications/Bitwarden.app
 verify "Mos"                test -d /Applications/Mos.app
 verify "Spotify"            test -d /Applications/Spotify.app
 verify "Claude"             test -d /Applications/Claude.app
+verify "neovim"             command -v nvim
+verify "neovim config"      test -f "$HOME/.config/nvim/init.lua"
 verify "Claude Code"        test -x "$HOME/.local/bin/claude"
 verify "zsh-syntax-hl"      test -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 verify "zsh-completions"    test -d "$(brew --prefix)/share/zsh-completions"

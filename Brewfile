@@ -10,6 +10,8 @@ brew "fzf"
 brew "ripgrep"
 brew "chroma"
 brew "starship"
+brew "neovim"
+brew "tmux"
 
 # ── CLI Tools ──
 brew "jq"

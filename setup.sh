@@ -1,7 +1,10 @@
 #!/bin/bash
 set -eo pipefail
 
-[[ "$(uname)" == "Darwin" ]] || { echo "This script requires macOS."; exit 1; }
+[[ "$(uname)" == "Darwin" ]] || {
+  echo "This script requires macOS."
+  exit 1
+}
 
 # ── Homebrew ──
 if ! command -v brew &>/dev/null; then
@@ -14,7 +17,7 @@ if ! command -v brew &>/dev/null; then
   fi
 fi
 
-# ── chezmoi (clone only — apply after bw auth) ──
+# chezmoi (clone only — apply after bw auth) ──
 brew install chezmoi
 chezmoi init boriswu0212/config
 
