@@ -14,6 +14,7 @@ brew "neovim"
 brew "tmux"
 
 # ── CLI Tools ──
+brew "fd"
 brew "jq"
 brew "bind"
 brew "helm"
