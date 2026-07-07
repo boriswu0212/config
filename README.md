@@ -14,6 +14,8 @@ macOS 開發環境設定檔備份與新環境建置指南。
 | Ghostty | `Library/Application Support/com.mitchellh.ghostty/config` | 同路徑 |
 | VS Code | `Library/Application Support/Code/User/settings.json` | 同路徑 |
 | RIME 注音 | `Library/Rime/bopomofo.custom.yaml`, `squirrel.custom.yaml` | `~/Library/Rime/` |
+| Neovim (LazyVim) | `dot_config/nvim/` | `~/.config/nvim/` |
+| tmux | `dot_tmux.conf` | `~/.tmux.conf` |
 | Git | `dot_gitconfig.tmpl`, `dot_gitconfig-work.tmpl` | `~/.gitconfig`, `~/.gitconfig-work` |
 | SSH | `private_dot_ssh/config.tmpl`, `config.local.tmpl` | `~/.ssh/config` |
 | Claude Code | `private_dot_claude/settings.json`, `settings.local.json.tmpl`, `settings-ds.json.tmpl`, `coralline.conf`, `statusline-command.sh` | `~/.claude/` |

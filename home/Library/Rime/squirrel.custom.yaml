@@ -3,6 +3,6 @@ patch:
   app_options/com.apple.Terminal:
     ascii_mode: true
   app_options/com.mitchellh.ghostty:
-    ascii_mode: true
+    ascii_mode: false
   app_options/com.microsoft.VSCode:
     ascii_mode: true
