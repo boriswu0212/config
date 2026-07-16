@@ -152,5 +152,5 @@ if you cannot proceed without the answer.
 ## Workflow Preferences
 
 - Multi-agent parallel is the norm — use without asking.
-- Standard dev flow: worktree → PR → monitor CI.
-- Use subagents for investigation and research to keep main context clean.
+- Always create a worktree before writing code. Then PR → check for merge conflicts → use Monitor tool to watch CI (if CI exists); if CI fails, diagnose and fix.
+- Offload to subagents when the task produces large intermediate output (logs, search results, file reads, test output) but only a small actionable result. This keeps main context clean.
