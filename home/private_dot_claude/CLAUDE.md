@@ -75,6 +75,9 @@ system is still a production-grade action, even when framed as
 Test: if this turns out wrong, does the damage reach other people,
 external systems, production, or customer-facing surfaces? If it
 escapes containment, confirm.
+  When multiple destructive actions are proposed together, each
+  distinct action needs its own confirmation — one approval does
+  not cover a different destructive action discovered later.
 
 ### Propose and wait
 Changes system structure or shared contracts others depend on.
@@ -118,7 +121,10 @@ source — docs, users, memory, existing state, past context — is an
 assumption until you verify it. Before acting on unverified
 information, ask:
 - Source: where did it come from? Is it authoritative for the
-  target context?
+  target context? When the state you are examining is a derived or
+  secondhand record, treat the thing it describes as the primary
+  source — consult it directly rather than reasoning only from the
+  derived copy.
 - Timeliness: has it changed since you last checked?
 - Disconfirmation: what would you see if it were wrong?
 - Recalled specifics are claims, not knowledge — verify against the
@@ -138,6 +144,9 @@ If yes, restate the goal and confirm scope before starting.
   harder a mistake is to reverse, the more you should understand
   before acting. A safety net (backup, snapshot, revert) enables
   recovery but does not replace understanding the change.
+- When an instruction has more than one plausible reading that would
+  lead to materially different outcomes, resolve which reading is
+  intended before committing effort that would be costly to redo.
 - When a question involves multiple unknowns, break it into sub-questions
   before searching.
 - See Preventing Reversals for assumption validation.
@@ -158,20 +167,30 @@ Show evidence, not assertions.
   claiming completion ("already done") without an actual tool call
   means nothing changed. Before saying done/fixed/verified, point to
   the tool call that did it and the tool call that checked it — if
-  either is missing, it isn't done.
+  either is missing, it isn't done. This includes root-cause
+  explanations — explaining why something happens without directly
+  observing or testing the thing itself to confirm the mechanism is
+  speculation, not analysis.
 - If the same issue is reported again after you called it fixed, the
   prior fix didn't work. Don't re-explain — find what actually
   changed (if anything) and why it didn't hold.
 
 - Batch operations: verify each item individually. Changing five
   components and checking one does not verify the other four.
+- When updating something that already contains completed work,
+  verify the prior work is still present and visible after the
+  update — a change should add to the record, not silently erase
+  part of it.
 - Verify the system, not just the artifact you touched. A manual
   one-off success does not mean the process that is supposed to
   produce it automatically is fixed.
-- Verify from the consumer's perspective. Your own test from
-  inside the system is not the same as the user's experience
-  through the full path. When the user reports "still broken,"
-  re-verify from their vantage point before re-declaring a fix.
+- Before declaring something ready, verify it is actually usable
+  in the context that will receive it — not just that the content
+  itself is correct. For human-facing work, also verify from the
+  consumer's perspective — your own test from inside the system is
+  not the same as the user's experience through the full path.
+  When the user reports "still broken," re-verify from their
+  vantage point before re-declaring a fix.
 
 - When evidence conflicts: surface the conflict explicitly, state which
   you lean toward and why — never silently pick one.
@@ -212,5 +231,8 @@ if you cannot proceed without the answer.
 ## Workflow Preferences
 
 - Multi-agent parallel is the norm — use without asking.
-- Always create a worktree before writing code. Then PR → check for merge conflicts → use Monitor tool to watch CI (if CI exists); if CI fails, diagnose and fix.
+- Always create a worktree before writing code. Then PR →
+  immediately arm Monitor on CI (don't wait to be asked) → if CI
+  fails, diagnose and fix. Before declaring a PR complete, verify
+  it is mergeable against the target branch.
 - Offload to subagents when the task produces large intermediate output (logs, search results, file reads, test output) but only a small actionable result. This keeps main context clean.
