@@ -88,6 +88,15 @@ else
   curl -fsSL https://claude.ai/install.sh | bash
 fi
 
+# ── TPM + tmux plugins ──
+step "Installing tmux plugins..."
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+else
+  echo "  TPM already installed."
+fi
+"$HOME/.tmux/plugins/tpm/bin/install_plugins" || echo "Warning: tmux plugin install failed"
+
 # ── Brew auto-update ──
 step "Configuring brew auto-update..."
 mkdir -p ~/Library/LaunchAgents
@@ -247,6 +256,7 @@ verify "Obsidian"           test -d /Applications/Obsidian.app
 verify "Bitwarden (GUI)"    test -d /Applications/Bitwarden.app
 verify "Mos"                test -d /Applications/Mos.app
 verify "Spotify"            test -d /Applications/Spotify.app
+verify "TPM"                test -d "$HOME/.tmux/plugins/tpm"
 verify "neovim"             command -v nvim
 verify "neovim config"      test -f "$HOME/.config/nvim/init.lua"
 verify "Claude Code"        test -x "$HOME/.local/bin/claude"
