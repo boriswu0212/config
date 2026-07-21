@@ -4,5 +4,5 @@
 {{ end }}
 
 {{ if eq .profile "home" }}
-.claude/hooks
+.claude/hooks/jenkins-curl-netrc.sh
 {{ end }}
