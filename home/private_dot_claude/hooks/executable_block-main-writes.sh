@@ -23,6 +23,11 @@ branch_of() { # $1 = dir; prints branch, rc=1 if not a repo
   git -C "$1" branch --show-current 2>/dev/null
 }
 
+exempt_repo() { # $1 = dir inside repo; rc=0 if repo opted out via marker file
+  top=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null) || return 1
+  [ -f "$top/.allow-main-writes" ]
+}
+
 case "$tool" in
   Edit|Write|NotebookEdit)
     fp=$(printf '%s' "$input" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')
@@ -34,8 +39,9 @@ case "$tool" in
     br=$(branch_of "$dir") || exit 0
     case "$br" in
       main|master)
+        exempt_repo "$dir" && exit 0
         git -C "$dir" check-ignore -q "$fp" 2>/dev/null && exit 0
-        deny "Blocked by main-branch guard: $fp is in a git repo on '$br'. Global rule: create a worktree/branch before writing (EnterWorktree or git checkout -b). Gitignored paths are exempt. If editing on $br is truly intended, the user can run with CLAUDE_ALLOW_MAIN=1 or disable this hook via /hooks."
+        deny "Blocked by main-branch guard: $fp is in a git repo on '$br'. Global rule: create a worktree/branch before writing (EnterWorktree or git checkout -b). Gitignored paths are exempt; a repo can opt out with a committed .allow-main-writes file at its root. If editing on $br is truly intended, the user can run with CLAUDE_ALLOW_MAIN=1 or disable this hook via /hooks."
         ;;
     esac
     ;;
@@ -51,7 +57,8 @@ case "$tool" in
     br=$(branch_of "$dir") || exit 0
     case "$br" in
       main|master)
-        deny "Blocked by main-branch guard: git commit while '$dir' is on '$br'. Create a worktree/branch first (EnterWorktree or git checkout -b). If committing on $br is truly intended, re-run prefixed with ALLOW_MAIN=1 (asks the user's explicit intent)."
+        exempt_repo "$dir" && exit 0
+        deny "Blocked by main-branch guard: git commit while '$dir' is on '$br'. Create a worktree/branch first (EnterWorktree or git checkout -b). A repo can opt out with a committed .allow-main-writes file at its root. If committing on $br is truly intended, re-run prefixed with ALLOW_MAIN=1 (asks the user's explicit intent)."
         ;;
     esac
     ;;
