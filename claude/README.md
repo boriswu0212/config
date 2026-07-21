@@ -64,6 +64,32 @@ deny 優先於 allow。`Bash(ls *)` 的空格是 word boundary，不會 match `l
 目前啟用的 hooks：
 - **Notification** — macOS 桌面通知
 - **PostToolUse** — JS/TS 檔案編輯後自動 `eslint --fix`
+- **PreToolUse: main-branch guard** — 擋住在 main/master 上寫檔與 `git commit`（見下）
+
+#### main-branch guard
+
+腳本：`home/private_dot_claude/hooks/executable_block-main-writes.sh`（chezmoi 管理，apply 後為 `~/.claude/hooks/block-main-writes.sh`）。
+
+行為：repo 在 `main`/`master` 時，擋 Edit/Write/NotebookEdit 與 `git commit`（含 `-C <dir>` 形式）。豁免：gitignored 路徑、`~/.claude/`、非 repo 目錄、detached HEAD。逃生口：命令內 `ALLOW_MAIN=1`，或環境變數 `CLAUDE_ALLOW_MAIN=1`。
+
+**佈線（settings.json 由 Bitwarden 供應，需手動更新兩個 note：`claude-settings-work` 與 `claude-settings-home`）**——在 `hooks.PreToolUse` 陣列加入：
+
+```json
+{
+  "matcher": "Edit|Write|NotebookEdit",
+  "hooks": [
+    { "type": "command", "command": "bash ~/.claude/hooks/block-main-writes.sh", "timeout": 10, "statusMessage": "main-branch guard" }
+  ]
+},
+{
+  "matcher": "Bash",
+  "hooks": [
+    { "type": "command", "command": "bash ~/.claude/hooks/block-main-writes.sh", "timeout": 10, "statusMessage": "main-branch guard" }
+  ]
+}
+```
+
+⚠️ 2026-07-21：work host 的 live `~/.claude/settings.json` 已直接加上此佈線，但 Bitwarden note 尚未更新——在更新 `claude-settings-work` 之前執行 `chezmoi apply` 會把佈線洗掉。
 
 ### statusLine
 
