@@ -24,8 +24,13 @@ branch_of() { # $1 = dir; prints branch, rc=1 if not a repo
 }
 
 exempt_repo() { # $1 = dir inside repo; rc=0 if repo opted out via marker file
+  # committed markers: repo root or .claude/; local-only marker: inside .git/
   top=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null) || return 1
-  [ -f "$top/.allow-main-writes" ]
+  [ -f "$top/.allow-main-writes" ] && return 0
+  [ -f "$top/.claude/allow-main-writes" ] && return 0
+  gd=$(git -C "$1" rev-parse --git-common-dir 2>/dev/null) || return 1
+  case "$gd" in /*) ;; *) gd="$1/$gd" ;; esac
+  [ -f "$gd/allow-main-writes" ]
 }
 
 case "$tool" in

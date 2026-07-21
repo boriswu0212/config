@@ -72,7 +72,15 @@ deny 優先於 allow。`Bash(ls *)` 的空格是 word boundary，不會 match `l
 
 行為：repo 在 `main`/`master` 時，擋 Edit/Write/NotebookEdit 與 `git commit`（含 `-C <dir>` 形式）。豁免：gitignored 路徑、`~/.claude/`、非 repo 目錄、detached HEAD。逃生口：命令內 `ALLOW_MAIN=1`，或環境變數 `CLAUDE_ALLOW_MAIN=1`。
 
-**Per-repo 豁免**：repo 根目錄有 committed `.allow-main-writes` 檔 → 整個 repo 豁免（適合不走 PR 的小型 solo repo）。首次加入會自我引導：`touch .allow-main-writes && git add … && git commit`——marker 落地後 commit 檢查即放行，不需 ALLOW_MAIN。本 repo（config）已豁免。判斷一個 repo 該不該豁免：有其他使用者？有 CI 把關？有從 main 自動部署？全否才豁免。
+**Per-repo 豁免**——marker 檔三個位置擇一，存在即豁免整個 repo：
+
+| 位置 | 性質 | 適用 |
+|------|------|------|
+| `<repo>/.allow-main-writes` | committed，最顯眼 | 不走 PR 的 solo repo，政策公開 |
+| `<repo>/.claude/allow-main-writes` | committed，namespaced | 同上，但不想污染 repo 根目錄 |
+| `<repo>/.git/allow-main-writes` | **local-only**，永不入版控 | 共享 repo 的個人／單機豁免；worktree 共用主 repo 的這個 marker |
+
+首次加入 committed marker 會自我引導：`touch` 後直接 `git add … && git commit` 即放行，不需 ALLOW_MAIN；`.git/` 版連 commit 都不用。移除 committed marker 的那筆 commit 因 marker 已不在會被擋，需 `ALLOW_MAIN=1`（或在 branch 上做）。本 repo（config）已用根目錄 marker 豁免。判斷一個 repo 該不該豁免：有其他使用者？有 CI 把關？有從 main 自動部署？全否才豁免。
 
 **佈線（settings.json 由 Bitwarden 供應，需手動更新兩個 note：`claude-settings-work` 與 `claude-settings-home`）**——在 `hooks.PreToolUse` 陣列加入：
 
